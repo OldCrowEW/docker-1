@@ -38,10 +38,10 @@ COPY init.groovy /usr/share/jenkins/ref/init.groovy.d/tcp-slave-agent-port.groov
 
 # jenkins version being bundled in this docker image
 ARG JENKINS_VERSION
-ENV JENKINS_VERSION ${JENKINS_VERSION:-2.89}
+ENV JENKINS_VERSION ${JENKINS_VERSION:-2.91}
 
 # jenkins.war checksum, download will be validated using it
-ARG JENKINS_SHA=e7551f166479b54135e2255f42decc2cce7a28150e3d345dd28c8e049486b71d
+ARG JENKINS_SHA=be60f33fe9c3f99f413fca1f0a692fb649a8fef50f8f24c2ef24ed71b00e9311
 
 # Can be used to customize where jenkins.war get downloaded from
 ARG JENKINS_URL=https://repo.jenkins-ci.org/public/org/jenkins-ci/main/jenkins-war/${JENKINS_VERSION}/jenkins-war-${JENKINS_VERSION}.war
@@ -63,7 +63,8 @@ EXPOSE ${agent_port}
 
 ENV COPY_REFERENCE_FILE_LOG $JENKINS_HOME/copy_reference_file.log
 
-RUN apt-get update && apt-get install -y python jq && curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py && pip install awscli
+RUN apt-get update && apt-get install -y python jq && curl -O https://bootstrap.pypa.io/get-pip.py && python get-pip.py \
+&& pip install awscli && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 USER ${user}
 
@@ -74,3 +75,5 @@ ENTRYPOINT ["/bin/tini", "--", "/usr/local/bin/jenkins.sh"]
 # from a derived Dockerfile, can use `RUN plugins.sh active.txt` to setup /usr/share/jenkins/ref/plugins from a support bundle
 COPY plugins.sh /usr/local/bin/plugins.sh
 COPY install-plugins.sh /usr/local/bin/install-plugins.sh
+COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt

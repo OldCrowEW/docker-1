@@ -1,0 +1,6 @@
+config-file-provider:latest
+aws-credentials:latest
+amazon-ecs:latest
+kubernetes:latest
+mercurial:latest
+workflow-aggregator:latest
